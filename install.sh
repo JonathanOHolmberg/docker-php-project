@@ -2,7 +2,7 @@
 
 
 cat << EOF > .env
-CURRENCY_API_KEY=e5adcce0a8be7b2cd79a13f7bbf78a1b
+CURRENCY_API_KEY=6841aa872019a2b92027a6a73a07a903
 DB_HOST=db
 DB_NAME=alkodb
 DB_USER=user
@@ -37,5 +37,13 @@ chmod +x uninstall.sh
 echo "uninstall.sh script created successfully."
 
 
+echo "Installing Composer..."
+docker run --rm -v "$PWD/src/api:/app" composer install
+docker run --rm -v "$PWD/src/app:/app" composer install
+echo "Composer installed."
+
+
 echo "Runnable scripts:"
-echo "- ./uninstall.sh: Uninstall the application"
+echo "docker-compose up --build: Build and run the application"
+echo "docker-compose down: Stop and remove the application"
+echo "./uninstall.sh: Uninstall the application"

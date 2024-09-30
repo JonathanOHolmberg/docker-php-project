@@ -24,6 +24,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8082:80"
+    environment:
+      - ALKO_URL=${ALKO_URL}
+      - CURRENCY_API_KEY=${CURRENCY_API_KEY}
 
   server:
     build:

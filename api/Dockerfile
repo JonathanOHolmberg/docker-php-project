@@ -1,22 +1,36 @@
 FROM php:8.1-apache
 
-# Install cURL and zip extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libcurl4-openssl-dev \
     libzip-dev \
-    && docker-php-ext-install curl zip
+    zip \
+    && docker-php-ext-install zip pdo pdo_mysql
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Copy API files
-COPY . /var/www/html/
-
 # Set working directory
 WORKDIR /var/www/html
 
-# Apache runs on port 80 by default
-EXPOSE 80
+# Install Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php \
+    && php -r "unlink('composer-setup.php');" \
+    && mv composer.phar /usr/local/bin/composer
 
-# Use the default Apache command
-CMD ["apache2-foreground"]
+# Copy composer files
+COPY composer.json ./
+
+# Install dependencies
+RUN composer install --no-scripts --no-autoloader
+
+# Install PHPUnit
+RUN composer require --dev phpunit/phpunit
+
+# Copy application files
+COPY . .
+
+# Generate autoloader and optimize
+RUN composer dump-autoload --optimize
+
+# Set permissions

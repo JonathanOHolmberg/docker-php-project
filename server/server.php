@@ -30,21 +30,38 @@ function getProducts($db) {
 function setProducts($db, $products) {
     try {
         $db->beginTransaction();
-        $stmt = $db->prepare("INSERT INTO products (number, name, bottlesize, price, priceGBP, timestamp, orderamount) 
-                              VALUES (:number, :name, :bottlesize, :price, :priceGBP, :timestamp, :orderamount)
+        $stmt = $db->prepare("INSERT INTO products (number, name, bottlesize, price, priceGBP, timestamp) 
+                              VALUES (:number, :name, :bottlesize, :price, :priceGBP, :timestamp)
                               ON DUPLICATE KEY UPDATE 
                               name = VALUES(name), bottlesize = VALUES(bottlesize), 
                               price = VALUES(price), priceGBP = VALUES(priceGBP), 
                               timestamp = VALUES(timestamp)");
         
         foreach ($products as $product) {
-            $stmt->execute($product);
+            $requiredFields = ['number', 'name', 'bottlesize', 'price', 'priceGBP', 'timestamp'];
+            foreach ($requiredFields as $field) {
+                if (!isset($product[$field])) {
+                    throw new Exception("Missing required field: $field");
+                }
+            }
+
+            $stmt->execute([
+                ':number' => $product['number'],
+                ':name' => $product['name'],
+                ':bottlesize' => $product['bottlesize'],
+                ':price' => $product['price'],
+                ':priceGBP' => $product['priceGBP'],
+                ':timestamp' => $product['timestamp']
+            ]);
         }
         $db->commit();
         return ['status' => 'success', 'message' => 'Products updated successfully'];
     } catch(PDOException $e) {
         $db->rollBack();
         return ['error' => 'Failed to set products: ' . $e->getMessage()];
+    } catch(Exception $e) {
+        $db->rollBack();
+        return ['error' => $e->getMessage()];
     }
 }
 

@@ -4,3 +4,6 @@ structure.txt
 .env
 .uninstall.sh
 
+vendor/
+composer.lock
+
