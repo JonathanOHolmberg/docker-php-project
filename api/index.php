@@ -2,7 +2,6 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Mock product data
 $products = [
     [
         'number' => 1,
