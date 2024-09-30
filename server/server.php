@@ -35,7 +35,7 @@ function setProducts($db, $products) {
                               ON DUPLICATE KEY UPDATE 
                               name = VALUES(name), bottlesize = VALUES(bottlesize), 
                               price = VALUES(price), priceGBP = VALUES(priceGBP), 
-                              timestamp = VALUES(timestamp), orderamount = VALUES(orderamount)");
+                              timestamp = VALUES(timestamp), orderamount = orderamount;
         
         foreach ($products as $product) {
             $stmt->execute($product);
