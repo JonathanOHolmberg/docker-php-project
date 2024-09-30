@@ -1,5 +1,9 @@
 Instructions to run the application:
 
+Dependencies:
+- Docker (I prefer using Docker Desktop)
+- Docker Compose
+
 Step 1: Install the application
 
 ```bash
