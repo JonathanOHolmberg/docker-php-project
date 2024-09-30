@@ -13,20 +13,17 @@ EOF
 echo ".env file created successfully."
 
 
-# Create uninstall script
 cat << 'EOF' > uninstall.sh
 #!/bin/bash
 echo "Are you sure? (y/n)"
 read answer
 if [ "$answer" != "${answer#[Yy]}" ]; then
-    # Stop and remove Docker containers, volumes, and images
-    docker-compose down -v --rmi all
+    docker-compose down -v --rmi local
+    docker rmi composer:latest
 
-    # Remove .env file from root
     rm -f .env
-
-    # Remove scripts from root
     rm -f run_tests.sh uninstall.sh
+    rm -f populate_db.sh
 
     echo "Uninstallation complete."
 else
@@ -38,9 +35,17 @@ echo "uninstall.sh script created successfully."
 
 
 echo "Installing Composer..."
-docker run --rm -v "$PWD/src/api:/app" composer install
-docker run --rm -v "$PWD/src/app:/app" composer install
+docker run --rm -v "$PWD/api:/app" composer install
+docker run --rm -v "$PWD/app:/app" composer install
 echo "Composer installed."
+
+
+cat << 'EOF' > populate_db.sh
+#!/bin/bash
+docker-compose exec app php /var/www/html/app.php action=populate
+EOF
+chmod +x populate_db.sh
+echo "populate_db.sh script created successfully."
 
 
 echo "Runnable scripts:"

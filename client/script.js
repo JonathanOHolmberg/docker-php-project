@@ -54,8 +54,10 @@ function listProducts() {
             } else if (Array.isArray(bodyData)) {
                 bodyData.forEach(product => {
                     const row = document.createElement('div');
+                    row.id = `product-${product.number}`;
+                    row.setAttribute('data-product-number', product.number);
                     row.innerHTML = `
-                        ${product.name} - ${product.price} EUR (${product.priceGBP} GBP) - Order Amount: ${product.orderamount}
+                        ${product.name} - ${product.price} EUR (${product.priceGBP} GBP) - Order Amount: <span class="order-amount">${product.orderamount}</span>
                         <button onclick="addOrder(${product.number})">Add</button>
                         <button onclick="clearOrder(${product.number})">Clear</button>
                     `;
@@ -78,23 +80,56 @@ function emptyList() {
 function addOrder(productNumber) {
     fetch(`http://localhost:8081/app.php?action=add&number=${productNumber}`)
         .then(response => response.json())
-        .then(() => listProducts())
+        .then(data => {
+            console.log('Add order response:', data);
+            if (data.body) {
+                updateProductRow(JSON.parse(data.body));
+            } else {
+                console.error('Unexpected response format:', data);
+            }
+        })
         .catch(error => console.error('Error:', error));
 }
 
 function clearOrder(productNumber) {
     fetch(`http://localhost:8081/app.php?action=clear&number=${productNumber}`)
         .then(response => response.json())
-        .then(() => listProducts())
+        .then(data => {
+            console.log('Clear order response:', data);
+            if (data.body) {
+                updateProductRow(JSON.parse(data.body));
+            } else {
+                console.error('Unexpected response format:', data);
+            }
+        })
         .catch(error => console.error('Error:', error));
+}
+
+function updateProductRow(product) {
+    const row = document.getElementById(`product-${product.number}`);
+    if (row) {
+        const orderAmountSpan = row.querySelector('.order-amount');
+        if (orderAmountSpan) {
+            orderAmountSpan.textContent = product.orderamount;
+        } else {
+            console.error('Order amount span not found');
+        }
+    } else {
+        console.error(`Product row not found for product number ${product.number}`);
+    }
 }
 
 function populateDatabase() {
     fetch('http://localhost:8081/app.php?action=populate')
         .then(response => response.json())
         .then(data => {
-            console.log('Database populated:', data);
-            listProducts(); // Refresh the product list after populating
+            console.log('Database population result:', data);
+            if (data.error) {
+                console.error('Error populating database:', data.error);
+            } else {
+                console.log('Database populated successfully');
+                listProducts();
+            }
         })
         .catch(error => console.error('Error:', error));
 }
