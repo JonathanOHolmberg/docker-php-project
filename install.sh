@@ -22,8 +22,7 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
     docker rmi composer:latest
 
     rm -f .env
-    rm -f run_tests.sh uninstall.sh
-    rm -f populate_db.sh
+    rm -f uninstall.sh
 
     echo "Uninstallation complete."
 else
@@ -38,14 +37,6 @@ echo "Installing Composer..."
 docker run --rm -v "$PWD/api:/app" composer install
 docker run --rm -v "$PWD/app:/app" composer install
 echo "Composer installed."
-
-
-cat << 'EOF' > populate_db.sh
-#!/bin/bash
-docker-compose exec app php /var/www/html/app.php action=populate
-EOF
-chmod +x populate_db.sh
-echo "populate_db.sh script created successfully."
 
 
 echo "Runnable scripts:"
