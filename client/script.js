@@ -54,6 +54,7 @@ function listProducts() {
             } else if (Array.isArray(bodyData)) {
                 bodyData.forEach(product => {
                     const row = document.createElement('div');
+                    row.setAttribute('data-product-number', product.number);
                     row.innerHTML = `
                         ${product.name} - ${product.price} EUR (${product.priceGBP} GBP) - Order Amount: ${product.orderamount}
                         <button onclick="addOrder(${product.number})">Add</button>
@@ -78,15 +79,26 @@ function emptyList() {
 function addOrder(productNumber) {
     fetch(`http://localhost:8081/app.php?action=add&number=${productNumber}`)
         .then(response => response.json())
-        .then(() => listProducts())
+        .then(data => updateProductRow(data))
         .catch(error => console.error('Error:', error));
 }
 
 function clearOrder(productNumber) {
     fetch(`http://localhost:8081/app.php?action=clear&number=${productNumber}`)
         .then(response => response.json())
-        .then(() => listProducts())
+        .then(data => updateProductRow(data))
         .catch(error => console.error('Error:', error));
+}
+
+function updateProductRow(product) {
+    const row = document.querySelector(`[data-product-number="${product.number}"]`);
+    if (row) {
+        row.innerHTML = `
+            ${product.name} - ${product.price} EUR (${product.priceGBP} GBP) - Order Amount: ${product.orderamount}
+            <button onclick="addOrder(${product.number})">Add</button>
+            <button onclick="clearOrder(${product.number})">Clear</button>
+        `;
+    }
 }
 
 function populateDatabase() {

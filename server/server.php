@@ -65,6 +65,20 @@ function setProducts($db, $products) {
     }
 }
 
+function getUpdatedProduct($db, $number) {
+    try {
+        $stmt = $db->prepare("SELECT * FROM products WHERE number = ?");
+        $stmt->execute([$number]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$product) {
+            throw new Exception("Product not found");
+        }
+        return $product;
+    } catch(PDOException $e) {
+        return ['error' => 'Failed to get updated product: ' . $e->getMessage()];
+    }
+}
+
 switch ($action) {
     case 'getProducts':
         echo json_encode(getProducts($db));
@@ -77,7 +91,8 @@ switch ($action) {
         try {
             $stmt = $db->prepare("UPDATE products SET orderamount = orderamount + 1 WHERE number = ?");
             $stmt->execute([$number]);
-            echo json_encode(['status' => 'success', 'message' => 'Order amount increased']);
+            $updatedProduct = getUpdatedProduct($db, $number);
+            echo json_encode($updatedProduct);
         } catch(PDOException $e) {
             echo json_encode(['error' => 'Update failed: ' . $e->getMessage()]);
         }
@@ -86,7 +101,8 @@ switch ($action) {
         try {
             $stmt = $db->prepare("UPDATE products SET orderamount = 0 WHERE number = ?");
             $stmt->execute([$number]);
-            echo json_encode(['status' => 'success', 'message' => 'Order amount cleared']);
+            $updatedProduct = getUpdatedProduct($db, $number);
+            echo json_encode($updatedProduct);
         } catch(PDOException $e) {
             echo json_encode(['error' => 'Clear failed: ' . $e->getMessage()]);
         }
