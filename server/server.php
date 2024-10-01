@@ -64,6 +64,7 @@ function setProducts($db, $products) {
             ]);
         }
         $db->commit();
+        updateCacheStatus($db);
         return ['status' => 'success', 'message' => 'Products updated successfully'];
     } catch(PDOException $e) {
         $db->rollBack();
@@ -88,6 +89,27 @@ function getUpdatedProduct($db, $number) {
     }
 }
 
+function updateCacheStatus($db) {
+    try {
+        $stmt = $db->prepare("UPDATE cache_status SET timestamp = CURRENT_TIMESTAMP WHERE user = 'system'");
+        $stmt->execute();
+        return ['status' => 'success', 'message' => 'Cache status updated'];
+    } catch(PDOException $e) {
+        return ['error' => 'Failed to update cache status: ' . $e->getMessage()];
+    }
+}
+
+function getCacheStatus($db) {
+    try {
+        $stmt = $db->prepare("SELECT timestamp FROM cache_status WHERE user = 'system'");
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['timestamp'] : null;
+    } catch(PDOException $e) {
+        return ['error' => 'Failed to get cache status: ' . $e->getMessage()];
+    }
+}
+
 switch ($action) {
     case 'getProducts':
         echo json_encode(getProducts($db));
@@ -101,6 +123,7 @@ switch ($action) {
             $stmt = $db->prepare("UPDATE products SET orderamount = orderamount + 1 WHERE number = ?");
             $stmt->execute([$number]);
             $updatedProduct = getUpdatedProduct($db, $number);
+            updateCacheStatus($db);
             echo json_encode($updatedProduct);
         } catch(PDOException $e) {
             echo json_encode(['error' => 'Update failed: ' . $e->getMessage()]);
@@ -111,10 +134,17 @@ switch ($action) {
             $stmt = $db->prepare("UPDATE products SET orderamount = 0 WHERE number = ?");
             $stmt->execute([$number]);
             $updatedProduct = getUpdatedProduct($db, $number);
+            updateCacheStatus($db);
             echo json_encode($updatedProduct);
         } catch(PDOException $e) {
             echo json_encode(['error' => 'Clear failed: ' . $e->getMessage()]);
         }
+        break;
+    case 'updateCacheStatus':
+        echo json_encode(updateCacheStatus($db));
+        break;
+    case 'getCacheStatus':
+        echo json_encode(['timestamp' => getCacheStatus($db)]);
         break;
     default:
         echo json_encode(['error' => 'Invalid action']);

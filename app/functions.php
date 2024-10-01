@@ -75,6 +75,8 @@ function populateDatabase() {
             ];
         }
         
+        makeRequest('http://server/server.php?action=updateCacheStatus');
+        
         return json_decode($serverResponse['body'], true);
     } catch (Exception $e) {
         return [

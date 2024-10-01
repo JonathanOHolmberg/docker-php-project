@@ -17,6 +17,14 @@ switch ($action) {
         $response = makeRequest("http://server/server.php?action=$action&number=$number");
         echo json_encode($response);
         break;
+    case 'getCacheStatus':
+        $response = makeRequest('http://server/server.php?action=getCacheStatus');
+        echo json_encode($response);
+        break;
+    case 'updateCacheStatus':
+        $response = makeRequest('http://server/server.php?action=updateCacheStatus');
+        echo json_encode($response);
+        break;
     default:
         echo json_encode(['error' => 'Invalid action']);
 }
