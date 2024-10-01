@@ -118,18 +118,3 @@ function updateProductRow(product) {
         console.error(`Product row not found for product number ${product.number}`);
     }
 }
-
-function populateDatabase() {
-    fetch('http://localhost:8081/app.php?action=populate')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Database population result:', data);
-            if (data.error) {
-                console.error('Error populating database:', data.error);
-            } else {
-                console.log('Database populated successfully');
-                listProducts();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}

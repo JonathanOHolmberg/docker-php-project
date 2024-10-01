@@ -1,0 +1,2 @@
+# Run populate-db every day at 4 AM
+0 4 * * * /usr/local/bin/populate-db > /proc/1/fd/1 2>/proc/1/fd/2

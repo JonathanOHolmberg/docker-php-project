@@ -38,8 +38,14 @@ docker run --rm -v "$PWD/api:/app" composer install
 docker run --rm -v "$PWD/app:/app" composer install
 echo "Composer installed."
 
+echo "Building and starting the containers..."
+docker-compose up -d --build
+
+echo "Populating the database..."
+docker-compose exec app populate-db
 
 echo "Runnable scripts:"
 echo "docker-compose up --build: Build and run the application"
 echo "docker-compose down: Stop and remove the application"
+echo "docker-compose exec app populate-db: Populate the database"
 echo "./uninstall.sh: Uninstall the application"

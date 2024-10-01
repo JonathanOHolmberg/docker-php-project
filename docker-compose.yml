@@ -35,7 +35,8 @@ services:
     ports:
       - "8083:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
@@ -53,3 +54,9 @@ services:
       - "3306:3306"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/healthcheck.sh:/usr/local/bin/healthcheck.sh
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -7,12 +7,21 @@ $dbname = $_ENV['DB_NAME'];
 $user = $_ENV['DB_USER'];
 $pass = $_ENV['DB_PASSWORD'];
 
-try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-    exit;
+$maxRetries = 5;
+$retryDelay = 3;
+
+for ($i = 0; $i < $maxRetries; $i++) {
+    try {
+        $db = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        break;
+    } catch(PDOException $e) {
+        if ($i === $maxRetries - 1) {
+            echo json_encode(['error' => 'Database connection failed after ' . $maxRetries . ' attempts: ' . $e->getMessage()]);
+            exit;
+        }
+        sleep($retryDelay);
+    }
 }
 
 $action = $_GET['action'] ?? '';
