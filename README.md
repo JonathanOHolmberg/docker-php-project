@@ -11,7 +11,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-This installs a env enviroment and other necessary dependencies.
+This installs a env enviroment and other necessary dependencies and starts the application.
 
 Step 2: Start/stop the application
 
