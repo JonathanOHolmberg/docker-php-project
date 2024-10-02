@@ -22,6 +22,8 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
     docker rmi composer:latest
 
     rm -f .env
+    rm -rf app/vendor api/vendor
+    rm -f app/composer.lock api/composer.lock
     rm -f uninstall.sh
 
     echo "Uninstallation complete."
