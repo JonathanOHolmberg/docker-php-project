@@ -29,3 +29,10 @@ To uninstall the application, use the following command (this will remove the co
 ```bash
 ./uninstall.sh
 ```
+Tests
+
+To run the tests, use the following command:
+
+```bash
+docker-compose exec app vendor/bin/phpunit tests/FunctionsTest.php
+```
